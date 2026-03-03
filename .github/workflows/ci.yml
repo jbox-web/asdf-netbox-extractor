@@ -1,0 +1,41 @@
+---
+name: CI
+
+permissions: {}
+
+on:
+  push:
+    branches:
+      - '**'
+    paths-ignore:
+      - "**.md"
+  pull_request:
+    branches:
+      - '**'
+    paths-ignore:
+      - "**.md"
+  schedule:
+    - cron: '0 4 1 * *'
+  # Run workflow manually
+  workflow_dispatch:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - ubuntu-24.04-arm
+          - macos-latest
+          - macos-26-intel
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Test plugin
+        uses: asdf-vm/actions/plugin-test@v3
+        with:
+          command: netbox-extractor --version
+        env:
+          GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
